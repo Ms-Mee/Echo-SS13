@@ -48,7 +48,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tgui_fancy = TRUE
 	var/tgui_lock = FALSE
 	var/windowflashing = TRUE
-	var/crew_objectives = TRUE
 	var/toggles = TOGGLES_DEFAULT
 	var/db_flags
 	var/chat_toggles = TOGGLES_DEFAULT_CHAT
@@ -112,6 +111,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							"squid_face" = "Squidward",
 							"ipc_screen" = "Blue",
 							"ipc_antenna" = "None",
+							"ipc_tail" = "None",
 							"ipc_chassis" = "Morpheus Cyberkinetics (Custom)",
 							"ipc_brain" = "Posibrain",
 							"kepori_feathers" = "Plain",
@@ -301,13 +301,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<a href='?_src_=prefs;preference=setup_tab;tab=4' [current_setup == 4 ? "class='linkOn'" : ""]>Quirks</a>"
 			dat += "</center><hr>"
 			switch(current_setup)
-				if(0)
+				if(0) // Character Information
 					dat += "<center><h2>Outfit Preview Settings</h2>"
 					dat += "<a href='?_src_=prefs;preference=job'>Set Preview Job Gear</a><br></center>"
-					if(CONFIG_GET(flag/roundstart_traits))
-						dat += "<center><h2>Quirk Setup</h2>"
-						dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
-						dat += "<center><b>Current Quirks:</b> [all_quirks.len ? all_quirks.Join(", ") : "None"]</center>"
 					dat += "<h2>Identity</h2>"
 					dat += "<table width='100%'><tr><td width='24%' valign='top'>"
 					if(is_banned_from(user.ckey, "Appearance"))
@@ -374,6 +370,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<br><b>Uplink Spawn Location:</b><BR><a href ='?_src_=prefs;preference=uplink_loc;task=input'>[uplink_spawn_loc]</a><BR></td>"
 
 				if(2) //Character Appearance
+
 					dat += "<h2>Body</h2>"
 					dat += "<a href='?_src_=prefs;preference=all;task=random'>Random Body</A> "
 					dat += "<a href='?_src_=prefs;preference=toggle_random;random_type=[RANDOM_BODY]'>Always Random Body: [(randomise[RANDOM_BODY]) ? "Yes" : "No"]</A>"
@@ -670,6 +667,19 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "</td>"
 							mutant_category = 0
 
+					if("ipc_tail" in pref_species.default_features)
+						if(!mutant_category)
+							dat += APPEARANCE_CATEGORY_COLUMN
+
+						dat += "<h3>Tail Style</h3>"
+
+						dat += "<a href='?_src_=prefs;preference=ipc_tail;task=input'>[features["ipc_tail"]]</a><BR>"
+
+						mutant_category++
+						if(mutant_category >= MAX_MUTANT_ROWS)
+							dat += "</td>"
+							mutant_category = 0
+
 					if("ipc_chassis" in pref_species.default_features)
 						if(!mutant_category)
 							dat += APPEARANCE_CATEGORY_COLUMN
@@ -793,18 +803,18 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "</td>"
 							mutant_category = 0
 
-					if("tail_human" in pref_species.default_features)
-						if(!mutant_category)
-							dat += APPEARANCE_CATEGORY_COLUMN
+							if("tail_human" in pref_species.default_features)
+								if(!mutant_category)
+									dat += APPEARANCE_CATEGORY_COLUMN
 
-						dat += "<h3>Tail</h3>"
+								dat += "<h3>Tail</h3>"
 
-						dat += "<a href='?_src_=prefs;preference=tail_human;task=input'>[features["tail_human"]]</a><BR>"
+								dat += "<a href='?_src_=prefs;preference=tail_human;task=input'>[features["tail_human"]]</a><BR>"
 
-						mutant_category++
-						if(mutant_category >= MAX_MUTANT_ROWS)
-							dat += "</td>"
-							mutant_category = 0
+								mutant_category++
+								if(mutant_category >= MAX_MUTANT_ROWS)
+									dat += "</td>"
+									mutant_category = 0
 
 					if("ears" in pref_species.default_features)
 						if(!mutant_category)
@@ -890,24 +900,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "</table><br>"
 
 				if(3) //Loadout
-					if(path)
-						var/savefile/S = new /savefile(path)
-						if(S)
-							dat += "<center>"
-							var/name
-							var/unspaced_slots = 0
-							for(var/i=1, i<=max_save_slots, i++)
-								unspaced_slots++
-								if(unspaced_slots > 4)
-									dat += "<br>"
-									unspaced_slots = 0
-								S.cd = "/character[i]"
-								S["real_name"] >> name
-								if(!name)
-									name = "Character[i]"
-								dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [i == default_slot ? "class='linkOn'" : ""]>[name]</a> "
-							dat += "</center>"
-							dat += "<HR>"
 					var/list/type_blacklist = list()
 					if(equipped_gear && length(equipped_gear))
 						for(var/i = 1, i <= length(equipped_gear), i++)
@@ -1234,6 +1226,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				dat += "<b>Hide Radio Messages:</b> <a href = '?_src_=prefs;preference=toggle_radio_chatter'>[(chat_toggles & CHAT_RADIO)?"Shown":"Hidden"]</a><br>"
 				dat += "<b>Hide Prayers:</b> <a href = '?_src_=prefs;preference=toggle_prayers'>[(chat_toggles & CHAT_PRAYER)?"Shown":"Hidden"]</a><br>"
 				dat += "<b>Split Admin Tabs:</b> <a href = '?_src_=prefs;preference=toggle_split_admin_tabs'>[(toggles & SPLIT_ADMIN_TABS)?"Enabled":"Disabled"]</a><br>"
+				dat += "<b>Fast MC Refresh:</b> <a href = '?_src_=prefs;preference=toggle_fast_mc_refresh'>[(toggles & FAST_MC_REFRESH)?"Enabled":"Disabled"]</a><br>"
 				dat += "<b>Ignore Being Summoned as Cult Ghost:</b> <a href = '?_src_=prefs;preference=toggle_ignore_cult_ghost'>[(toggles & ADMIN_IGNORE_CULT_GHOST)?"Don't Allow Being Summoned":"Allow Being Summoned"]</a><br>"
 				dat += "<b>Briefing Officer Outfit:</b> <a href = '?_src_=prefs;preference=briefoutfit;task=input'>[brief_outfit]</a><br>"
 				if(CONFIG_GET(flag/allow_admin_asaycolor))
@@ -1362,7 +1355,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(!SSmapping)
 		return
 
-	var/datum/map_template/shuttle/ship = SSmapping.ship_purchase_list[tgui_input_list(user, "Please select which ship to preview outfits for.", "Outfit selection", SSmapping.ship_purchase_list)]
+	var/ship_selection = tgui_input_list(user, "Please select which ship to preview outfits for.", "Outfit selection", (list("None") + SSmapping.ship_purchase_list))
+	if(ship_selection == "None")
+		selected_outfit = new /datum/outfit //The base type outfit is nude
+
+	var/datum/map_template/shuttle/ship = SSmapping.ship_purchase_list[ship_selection]
 	if(!ship)
 		return
 
@@ -2161,6 +2158,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					if(new_ipc_antenna)
 						features["ipc_antenna"] = new_ipc_antenna
 
+				if("ipc_tail")
+					var/new_ipc_tail
+
+					new_ipc_tail = input(user, "Choose your character's tail:", "Character Preference") as null|anything in GLOB.ipc_tail_list
+
+					if(new_ipc_tail)
+						features["ipc_tail"] = new_ipc_tail
+
 				if("ipc_chassis")
 					var/new_ipc_chassis
 
@@ -2437,6 +2442,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					user.client.toggle_hear_radio()
 				if("toggle_split_admin_tabs")
 					toggles ^= SPLIT_ADMIN_TABS
+				if("toggle_fast_mc_refresh")
+					toggles ^= FAST_MC_REFRESH
 				if("toggle_prayers")
 					user.client.toggleprayers()
 				if("toggle_deadmin_always")
