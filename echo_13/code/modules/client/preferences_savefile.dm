@@ -97,7 +97,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	if(current_version < 42)
 		var/phobia
 		READ_FILE(S["phobia"], phobia)
-		quirk_preferences["Phobia"] = list(phobia)
+		quirk_preferences += list("Phobia"= list("Phobia" = list(phobia)))
 
 /// checks through keybindings for outdated unbound keys and updates them
 /datum/preferences/proc/check_keybindings()
